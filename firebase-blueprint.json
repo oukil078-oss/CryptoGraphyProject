@@ -1,0 +1,146 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account registration and role mapping.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "role": { "type": "string", "enum": ["ADMIN", "VOTER", "AUDITOR"], "description": "User role assignment" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Registration date-time" }
+      },
+      "required": ["id", "email", "role", "createdAt"]
+    },
+    "Election": {
+      "title": "Election",
+      "description": "Election definition metadata, including cryptographic parameters.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Election ID" },
+        "title": { "type": "string", "maxLength": 100, "description": "Title of the election" },
+        "description": { "type": "string", "maxLength": 500, "description": "Detailed description" },
+        "optionALabel": { "type": "string", "maxLength": 50, "description": "Choice A text representation" },
+        "optionBLabel": { "type": "string", "maxLength": 50, "description": "Choice B text representation" },
+        "optionCLabel": { "type": "string", "maxLength": 50, "description": "Choice C text representation" },
+        "status": { "type": "string", "enum": ["DRAFT", "OPEN", "CLOSED", "TALLIED"], "description": "Status phase of election" },
+        "startsAt": { "type": "string", "format": "date-time", "description": "Scheduled start time" },
+        "endsAt": { "type": "string", "format": "date-time", "description": "Scheduled end time" },
+        "paillierPublicKeyJson": { "type": "string", "description": "Serialized Paillier public key coefficients" },
+        "createdBy": { "type": "string", "description": "UID of admin creator" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "closedAt": { "type": "string", "format": "date-time", "description": "Closing timestamp if ended" },
+        "talliedAt": { "type": "string", "format": "date-time", "description": "Tallying timestamp if completed" }
+      },
+      "required": ["id", "title", "description", "optionALabel", "optionBLabel", "optionCLabel", "status", "startsAt", "endsAt", "paillierPublicKeyJson", "createdBy", "createdAt"]
+    },
+    "VoterEligibility": {
+      "title": "VoterEligibility",
+      "description": "Authorization token mapping voter eligibility and voting status per election.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Eligibility token document ID" },
+        "electionId": { "type": "string", "description": "Election ID" },
+        "userId": { "type": "string", "description": "User ID" },
+        "eligible": { "type": "boolean", "description": "Determines if user is authorized to vote" },
+        "hasVoted": { "type": "boolean", "description": "Flag showing whether user has already submitted a ballot" },
+        "votedAt": { "type": "string", "format": "date-time", "description": "Timestamp of vote submission if applicable" }
+      },
+      "required": ["id", "electionId", "userId", "eligible", "hasVoted"]
+    },
+    "EncryptedBallot": {
+      "title": "EncryptedBallot",
+      "description": "Anonymous cryptographic Paillier encrypted ballot submitted to an election.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Ballot document ID" },
+        "electionId": { "type": "string", "description": "Election ID" },
+        "ballotId": { "type": "string", "description": "Randomly generated transaction uuid" },
+        "encryptedA": { "type": "string", "description": "Paillier encrypted choice A ciphertext (BigInt)" },
+        "encryptedB": { "type": "string", "description": "Paillier encrypted choice B ciphertext (BigInt)" },
+        "encryptedC": { "type": "string", "description": "Paillier encrypted choice C ciphertext (BigInt)" },
+        "ballotHash": { "type": "string", "description": "SHA-256 fingerprint hash of the ballot payload" },
+        "serverSignature": { "type": "string", "description": "RSA blind signature proving registration authenticity" },
+        "auditIndex": { "type": "number", "description": "Sequential index inside election ledger" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Vote registration timestamp" }
+      },
+      "required": ["id", "electionId", "ballotId", "encryptedA", "encryptedB", "encryptedC", "ballotHash", "serverSignature", "auditIndex", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Tamper-evident hash-chained blockchain transaction ledger.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Ledger entry document ID" },
+        "electionId": { "type": "string", "description": "Election ID" },
+        "eventType": { "type": "string", "enum": ["VOTE_SUBMISSION", "ELECTION_CREATION", "ELECTION_CLOSED", "TALLY_COMPLETED"], "description": "Type of consensus event" },
+        "canonicalPayload": { "type": "string", "description": "Stringified raw transaction payload block" },
+        "previousHash": { "type": "string", "description": "Previous ledger entry SHA-256 block hash" },
+        "entryHash": { "type": "string", "description": "Current ledger entry SHA-256 block hash" },
+        "signature": { "type": "string", "description": "RSA server/authority signature validating entryHash" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Entry consensus timestamp" }
+      },
+      "required": ["id", "electionId", "eventType", "canonicalPayload", "previousHash", "entryHash", "signature", "createdAt"]
+    },
+    "Tally": {
+      "title": "Tally",
+      "description": "Cryptographic zero-knowledge verifiable aggregate and decrypted tallies.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Tally document ID" },
+        "electionId": { "type": "string", "description": "Election ID" },
+        "aggregateA": { "type": "string", "description": "Homomorphically multiplied Paillier cipher choice A (BigInt)" },
+        "aggregateB": { "type": "string", "description": "Homomorphically multiplied Paillier cipher choice B (BigInt)" },
+        "aggregateC": { "type": "string", "description": "Homomorphically multiplied Paillier cipher choice C (BigInt)" },
+        "decryptedTotalA": { "type": "number", "description": "Decrypted final sum for Choice A" },
+        "decryptedTotalB": { "type": "number", "description": "Decrypted final sum for Choice B" },
+        "decryptedTotalC": { "type": "number", "description": "Decrypted final sum for Choice C" },
+        "validBallotsCount": { "type": "number", "description": "Total count of certified votes accumulated" },
+        "tallyReportHash": { "type": "string", "description": "SHA-256 of report data" },
+        "tallySignature": { "type": "string", "description": "RSA server signature validating the tally outcome" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Tally consensus timestamp" }
+      },
+      "required": ["id", "electionId", "aggregateA", "aggregateB", "aggregateC", "decryptedTotalA", "decryptedTotalB", "decryptedTotalC", "validBallotsCount", "tallyReportHash", "tallySignature", "createdAt"]
+    },
+    "PrivateKeyStore": {
+      "title": "PrivateKeyStore",
+      "description": "Secure container of private key components for decryption and signing.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Election ID" },
+        "privateKeyJson": { "type": "string", "description": "Serialized private key secret components" }
+      },
+      "required": ["id", "privateKeyJson"]
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "Database-wide user list mapping users to high-security roles."
+    },
+    "elections": {
+      "schema": "Election",
+      "description": "Active and completed cryptographically secure election setups."
+    },
+    "voterEligibilities": {
+      "schema": "VoterEligibility",
+      "description": "Voter tokens recording authorization and participation statuses per election."
+    },
+    "encryptedBallots": {
+      "schema": "EncryptedBallot",
+      "description": "Ledger of blind-signed, Paillier encrypted ballot submissions."
+    },
+    "auditLogs": {
+      "schema": "AuditLog",
+      "description": "Secure tampered-evident transaction chain tracking the consensus state."
+    },
+    "tallies": {
+      "schema": "Tally",
+      "description": "Final cryptographic sum tallies computed and decrypted."
+    },
+    "privateKeysStore": {
+      "schema": "PrivateKeyStore",
+      "description": "Confidential, system-only storage of election private keys."
+    }
+  }
+}

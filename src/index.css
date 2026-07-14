@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: #030712;
+  --color-brand-ink: #f8fafc;
+  --color-brand-line: #1e293b;
+  --color-brand-gray: #1e293b;
+  --color-brand-orange: #f59e0b;
+  --color-brand-accent: #10b981;
+  --color-brand-neon: #10b981;
+  --color-brand-cyber-blue: #06b6d4;
+  --color-brand-military-green: #047857;
+  
+  --shadow-flat-sm: 0 0 10px rgba(16, 185, 129, 0.2);
+  --shadow-flat-md: 0 0 20px rgba(16, 185, 129, 0.4);
+  --shadow-flat-lg: 0 0 30px rgba(16, 185, 129, 0.6);
+  
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", Monaco, Consolas, monospace;
+}
+
+:root {
+  --bg: #030712;
+  --ink: #f8fafc;
+  --line: #1e293b;
+  --neon: #10b981;
+}
+
+body {
+  background-color: #030712;
+  color: #f8fafc;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom terminal scanlines and cyber patterns */
+.cyber-grid {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+}
+
+.scanline::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 99999;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+.scanline-sweep::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 100%;
+  background: linear-gradient(0deg, transparent 0%, rgba(16, 185, 129, 0.08) 50%, transparent 100%);
+  animation: sweep 8s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes sweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Retro CRT Glow */
+.crt-glow {
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.crt-glow-amber {
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
+}
+
+/* Custom theme components configured for top-secret secure terminal look */
+.technical-border {
+  border: 2px solid #1e293b;
+}
+
+.technical-border-thin {
+  border: 1px solid #1e293b;
+}
+
+.technical-card {
+  background-color: #0f172a;
+  border: 2px solid #1e293b;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 0 10px rgba(16, 185, 129, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.technical-card:hover {
+  border-color: #10b981;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.technical-card-deep {
+  background-color: #090d16;
+  border: 2px solid #1e293b;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.8);
+}
+
+.technical-btn-solid {
+  background-color: #10b981;
+  color: #030712;
+  border: 2px solid #10b981;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  cursor: pointer;
+}
+
+.technical-btn-solid:hover:not(:disabled) {
+  background-color: #34d399;
+  border-color: #34d399;
+  box-shadow: 0 0 18px rgba(52, 211, 153, 0.6);
+  transform: translateY(-1px);
+}
+
+.technical-btn-solid:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.2);
+}
+
+.technical-btn-solid:disabled {
+  background-color: #1e293b;
+  border-color: #1e293b;
+  color: #64748b;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.technical-btn-outline {
+  background-color: transparent;
+  color: #10b981;
+  border: 2px solid #1e293b;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.technical-btn-outline:hover:not(:disabled) {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.technical-btn-outline:disabled {
+  border-color: #1e293b;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.technical-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid #1e293b;
+  background-color: #1e293b;
+  color: #38bdf8;
+}
+
+.technical-badge-dark {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+/* Custom list items for technical data rows */
+.technical-data-row {
+  display: grid;
+  border-bottom: 1px solid #1e293b;
+  transition: background 0.15s ease, color 0.15s ease;
+  cursor: default;
+}
+
+.technical-data-row:hover {
+  background: rgba(16, 185, 129, 0.08) !important;
+}
+
+.technical-col-header {
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  border-bottom: 2px solid #1e293b;
+}
+
+/* Custom terminal look scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}

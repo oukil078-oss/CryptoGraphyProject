@@ -1,0 +1,6 @@
+{
+  "name": "CryptoLab Platform",
+  "description": "Plateforme académique de cryptographie appliquée (RSA Sandbox & Paillier Vote3) développée par Zakarya Oukil pour le module de Cryptographie Avancée de HIS-University.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

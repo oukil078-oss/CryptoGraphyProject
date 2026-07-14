@@ -1,0 +1,95 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN
+  VOTER
+  AUDITOR
+}
+
+enum ElectionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  TALLIED
+}
+
+model User {
+  id           String             @id @default(uuid())
+  email        String             @unique
+  passwordHash String
+  role         UserRole           @default(VOTER)
+  createdAt    DateTime           @default(now())
+  eligibilities VoterEligibility[]
+  electionsCreated Election[]
+}
+
+model Election {
+  id                    String             @id @default(uuid())
+  title                 String
+  description           String
+  status                ElectionStatus     @default(DRAFT)
+  optionALabel          String
+  optionBLabel          String
+  optionCLabel          String
+  startsAt              DateTime
+  endsAt                DateTime
+  paillierPublicKeyJson String             // Holds stringified Paillier Public Key
+  createdBy             String
+  creator               User               @relation(fields: [createdBy], references: [id])
+  createdAt             DateTime           @default(now())
+  closedAt              DateTime?
+  talliedAt             DateTime?
+  eligibilities         VoterEligibility[]
+  ballots               EncryptedBallot[]
+  tally                 TallyResult?
+}
+
+model VoterEligibility {
+  id         String    @id @default(uuid())
+  electionId String
+  election   Election  @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eligible   Boolean   @default(true)
+  hasVoted   Boolean   @default(false)
+  votedAt    DateTime?
+
+  @@unique([electionId, userId])
+}
+
+model EncryptedBallot {
+  id              String   @id @default(uuid())
+  electionId      String
+  election        Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  ballotId        String   @unique
+  encryptedA      String   // Paillier choice A ciphertext
+  encryptedB      String   // Paillier choice B ciphertext
+  encryptedC      String   // Paillier choice C ciphertext
+  ballotHash      String
+  serverSignature String
+  auditIndex      Int
+  createdAt       DateTime @default(now())
+}
+
+model TallyResult {
+  id                String   @id @default(uuid())
+  electionId        String   @unique
+  election          Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  aggregateA        String   // Aggregated choice A ciphertext
+  aggregateB        String   // Aggregated choice B ciphertext
+  aggregateC        String   // Aggregated choice C ciphertext
+  decryptedTotalA   Int
+  decryptedTotalB   Int
+  decryptedTotalC   Int
+  validBallotsCount Int
+  tallyReportHash   String
+  tallySignature    String
+  createdAt         DateTime @default(now())
+}
